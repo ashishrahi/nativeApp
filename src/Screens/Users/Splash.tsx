@@ -16,10 +16,10 @@ const Splash = () => {
   return (
     <View style={styles.container}>
       <Image 
-        source={require('../assests/images/logo.png')} // Update with your image path
+        source={require('../../assests/images/logo.png')} // Update with your image path
         style={styles.image} 
       />
-      <Text style={styles.text}>Splash</Text>
+      <Text style={styles.text}>Shopppy</Text>
     </View>
   );
 };

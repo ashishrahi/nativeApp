@@ -1,15 +1,16 @@
 import React from 'react';
-import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Image, Dimensions } from 'react-native';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
-import { useNavigation } from '@react-navigation/native'; // Import useNavigation
-import Signup from './Signup';
+import { useNavigation } from '@react-navigation/native';
 
 // Import your logo image (make sure the path is correct)
-import logo from '../assests/images/logo.png'; // Replace with your actual logo path
+import logo from '../../assests/images/logo.png'; // Replace with your actual logo path
+
+const { width, height } = Dimensions.get('window');
 
 const LoginForm = () => {
-  const navigation = useNavigation(); // Initialize navigation
+  const navigation = useNavigation();
 
   const loginValidationSchema = Yup.object().shape({
     email: Yup.string()
@@ -22,8 +23,12 @@ const LoginForm = () => {
 
   return (
     <View style={styles.container}>
-      {/* Add logo at the top of the form */}
-      <Image source={logo} style={styles.logo} resizeMode="contain" />
+      {/* Header with logo and title */}
+      <View style={styles.headerContainer}>
+        <Image source={logo} style={styles.logo} resizeMode="contain" />
+        <Text style={styles.title}>Sign In</Text>
+      </View>
+
       <Formik
         initialValues={{ email: '', password: '' }}
         validationSchema={loginValidationSchema}
@@ -53,8 +58,13 @@ const LoginForm = () => {
             {errors.password && touched.password && (
               <Text style={styles.errorText}>{errors.password}</Text>
             )}
-            <Button onPress={handleSubmit} title="SignIn" />
             
+            {/* Forgot Password link positioned below the Password field */}
+            <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')} style={styles.forgotPasswordButton}>
+              <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+            </TouchableOpacity>
+
+            <Button onPress={handleSubmit} title="Sign In" />
             <TouchableOpacity onPress={() => navigation.navigate('Signup')} style={styles.signupButton}>
               <Text style={styles.signupText}>Don't have an account? Sign Up</Text>
             </TouchableOpacity>
@@ -70,29 +80,48 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
+    padding: width * 0.05, // Responsive padding
+  },
+  headerContainer: {
+    alignItems: 'center',
+    marginBottom: height * 0.05, // Responsive margin
   },
   logo: {
-    width: 100, // Adjust the width as needed
-    height: 100, // Adjust the height as needed
-    marginBottom: 20, // Space between logo and inputs
+    width: width * 0.25, // Responsive width
+    height: height * 0.15, // Responsive height
+  },
+  title: {
+    fontSize: width * 0.06, // Responsive font size
+    fontWeight: 'bold',
+    marginTop: height * 0.02, // Responsive margin
   },
   input: {
     width: '100%',
-    height: 40,
+    height: height * 0.06, // Responsive height
     borderColor: 'gray',
     borderWidth: 1,
-    marginBottom: 12,
-    paddingHorizontal: 10,
+    marginBottom: height * 0.02, // Responsive margin
+    paddingHorizontal: width * 0.03, // Responsive padding
+    borderRadius: 5, // Rounded corners for better aesthetics
   },
   errorText: {
-    fontSize: 12,
+    fontSize: width * 0.03, // Responsive font size
     color: 'red',
+    alignSelf: 'flex-start', // Align error text to the left
+    marginBottom: height * 0.01, // Responsive margin
   },
   signupButton: {
-    marginTop: 20,
+    marginTop: height * 0.02, // Responsive margin
   },
   signupText: {
+    color: 'blue',
+    textDecorationLine: 'underline',
+  },
+  forgotPasswordButton: {
+    marginTop: height * 0.01, // Responsive margin
+    alignSelf: 'flex-end', // Align to the right
+  },
+  forgotPasswordText: {
     color: 'blue',
     textDecorationLine: 'underline',
   },

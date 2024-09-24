@@ -1,9 +1,9 @@
 import React from 'react'
 import { createStackNavigator } from '@react-navigation/stack'
 import { NavigationContainer } from '@react-navigation/native'
-import Splash from './Screens/Splash'
-import SignIn from './Screens/SignIn'
-import SignupForm from './Screens/Signup'
+import Splash from './Screens/Users/Splash'
+import SignIn from './Screens/Users/SignIn'
+import SignupForm from './Screens/Users/Signup'
 const Stack = createStackNavigator()
 const AppNavigator = () => {
     return (
