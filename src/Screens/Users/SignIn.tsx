@@ -1,10 +1,10 @@
 import React from 'react';
-import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Image, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Image, Dimensions } from 'react-native';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { useNavigation } from '@react-navigation/native';
+import { TextInput, Button, TouchableRipple } from 'react-native-paper'; // Importing React Native Paper components
 
-// Import your logo image (make sure the path is correct)
 import logo from '../../assests/images/logo.png'; // Replace with your actual logo path
 
 const { width, height } = Dimensions.get('window');
@@ -37,37 +37,45 @@ const LoginForm = () => {
         {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
           <>
             <TextInput
+              label="Email"
+              mode="outlined"
               style={styles.input}
-              placeholder="Email"
               onChangeText={handleChange('email')}
               onBlur={handleBlur('email')}
               value={values.email}
               keyboardType="email-address"
+              error={errors.email && touched.email}
             />
             {errors.email && touched.email && (
               <Text style={styles.errorText}>{errors.email}</Text>
             )}
+
             <TextInput
+              label="Password"
+              mode="outlined"
               style={styles.input}
-              placeholder="Password"
               onChangeText={handleChange('password')}
               onBlur={handleBlur('password')}
               value={values.password}
               secureTextEntry
+              error={errors.password && touched.password}
             />
             {errors.password && touched.password && (
               <Text style={styles.errorText}>{errors.password}</Text>
             )}
             
             {/* Forgot Password link positioned below the Password field */}
-            <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')} style={styles.forgotPasswordButton}>
+            <TouchableRipple onPress={() => navigation.navigate('ForgotPassword')} style={styles.forgotPasswordButton}>
               <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-            </TouchableOpacity>
+            </TouchableRipple>
 
-            <Button onPress={handleSubmit} title="Sign In" />
-            <TouchableOpacity onPress={() => navigation.navigate('Signup')} style={styles.signupButton}>
+            <Button mode="contained" onPress={handleSubmit} style={styles.signInButton}>
+              Sign In
+            </Button>
+
+            <TouchableRipple onPress={() => navigation.navigate('Signup')} style={styles.signupButton}>
               <Text style={styles.signupText}>Don't have an account? Sign Up</Text>
-            </TouchableOpacity>
+            </TouchableRipple>
           </>
         )}
       </Formik>
@@ -94,15 +102,11 @@ const styles = StyleSheet.create({
     fontSize: width * 0.06, // Responsive font size
     fontWeight: 'bold',
     marginTop: height * 0.02, // Responsive margin
+    color:'red',
   },
   input: {
     width: '100%',
-    height: height * 0.06, // Responsive height
-    borderColor: 'gray',
-    borderWidth: 1,
     marginBottom: height * 0.02, // Responsive margin
-    paddingHorizontal: width * 0.03, // Responsive padding
-    borderRadius: 5, // Rounded corners for better aesthetics
   },
   errorText: {
     fontSize: width * 0.03, // Responsive font size
@@ -124,6 +128,10 @@ const styles = StyleSheet.create({
   forgotPasswordText: {
     color: 'blue',
     textDecorationLine: 'underline',
+  },
+  signInButton: {
+    marginTop: height * 0.03, // Responsive margin
+    width: '100%',
   },
 });
 
