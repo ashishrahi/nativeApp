@@ -4,7 +4,7 @@ import { NavigationContainer } from '@react-navigation/native'
 import Splash from './Screens/Users/Splash'
 import SignIn from './Screens/Users/SignIn'
 import SignupForm from './Screens/Users/Signup'
-import Main from './Screens/Home/Home'
+import Main from './Screens/Mains/Main'
 const Stack = createStackNavigator()
 
 const AppNavigator = () => {

@@ -3,7 +3,7 @@ import React from 'react'
 import Header from '../../components/Header/Header'
 import CustomBanner from '../../components/Banner/Banner'
 import CategoryList from '../CategoryList/CategoryList'
-export default function Main() {
+export default function Home() {
   return (
     <>
      <Header/>
