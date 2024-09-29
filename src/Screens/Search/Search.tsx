@@ -1,11 +1,12 @@
 import { View, Text } from 'react-native'
 import React from 'react'
+import AppBar from '../../components/Appbar/Appbar'
 
 const Search = () => {
   return (
-    <View>
-      <Text>Search</Text>
-    </View>
+    <>
+      <AppBar title="Search"/>
+    </>
   )
 }
 

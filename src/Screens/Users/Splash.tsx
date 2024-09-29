@@ -7,7 +7,7 @@ const Splash = () => {
 
   React.useEffect(() => {
     const timer = setTimeout(() => {
-      navigation.navigate('SignIn');
+      navigation.navigate('Main');
     }, 1000); // Delay for 1000 milliseconds (1 second)
 
     return () => clearTimeout(timer); // Clean up the timeout on component unmount
@@ -29,7 +29,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#ffffff', // Change background color as needed
   },
   image: {
     width: 150, // Adjust width as needed
@@ -39,6 +38,7 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 24,
     fontWeight: 'bold',
+    color: 'black',
   },
 });
 

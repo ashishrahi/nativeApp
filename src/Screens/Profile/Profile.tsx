@@ -1,12 +1,12 @@
 import { View, Text } from 'react-native'
 import React from 'react'
-
-const Profile = () => {
+import CustomProfile from '../../components/Profile/Profile'
+import AppBar from '../../components/Appbar/Appbar'
+export default function Profile() {
   return (
-    <View>
-      <Text>Profile</Text>
-    </View>
+    <>
+     <AppBar title="Profile"/>
+      <CustomProfile/>
+    </>
   )
 }
-
-export default Profile

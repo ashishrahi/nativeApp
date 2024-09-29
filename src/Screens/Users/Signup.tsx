@@ -7,7 +7,7 @@ import { useNavigation } from '@react-navigation/native';
 // Import your logo image (make sure the path is correct)
 import logo from '../../assests/images/logo.png'; // Update this path to your logo
 
-const AuthForm = () => {
+const Signup = () => {
   const navigation = useNavigation();
   const [isLogin, setIsLogin] = useState(true); // State to toggle between login and signup
 
@@ -55,6 +55,7 @@ const AuthForm = () => {
               onBlur={handleBlur('email')}
               value={values.email}
               keyboardType="email-address"
+              placeholderTextColor="gray" // Placeholder color
             />
             {errors.email && touched.email && (
               <Text style={styles.errorText}>{errors.email}</Text>
@@ -66,6 +67,7 @@ const AuthForm = () => {
               onBlur={handleBlur('password')}
               value={values.password}
               secureTextEntry
+              placeholderTextColor="gray" // Placeholder color
             />
             {errors.password && touched.password && (
               <Text style={styles.errorText}>{errors.password}</Text>
@@ -79,6 +81,7 @@ const AuthForm = () => {
                   onBlur={handleBlur('confirmPassword')}
                   value={values.confirmPassword}
                   secureTextEntry
+                  placeholderTextColor="gray" // Placeholder color
                 />
                 {errors.confirmPassword && touched.confirmPassword && (
                   <Text style={styles.errorText}>{errors.confirmPassword}</Text>
@@ -89,7 +92,7 @@ const AuthForm = () => {
             
             {/* Toggle between Sign In and Sign Up */}
             <TouchableOpacity onPress={() => setIsLogin(!isLogin)} style={styles.toggleButton}>
-              <Text style={styles.toggleText}>
+              <Text style={styles.toggleText,{textAlign:'center',color:'black'}}>
                 {isLogin ? "Don't have an account? Sign Up" : 'Already have an account? Sign In'}
               </Text>
             </TouchableOpacity>
@@ -119,6 +122,7 @@ const styles = StyleSheet.create({
     fontSize: 24, // Adjust the font size as needed
     fontWeight: 'bold',
     marginTop: 10, // Space between logo and title
+    color: 'black',
   },
   formContainer: {
     width: '100%',
@@ -130,6 +134,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 12,
     paddingHorizontal: 10,
+    color: 'black', // Change text color to black
   },
   errorText: {
     fontSize: 12,
@@ -139,9 +144,9 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   toggleText: {
-    color: 'blue',
+    color: 'black',
     textDecorationLine: 'underline',
   },
 });
 
-export default AuthForm;
+export default Signup;

@@ -1,29 +1,31 @@
 import React from 'react';
 import { FlatList, View, Text, Image, StyleSheet } from 'react-native';
+import {Categories} from '../../assests/data'; // Adjust the path as necessary
 
 const CategoryList = () => {
-  const categories = [
-    { id: '1', name: 'Electronics', image: 'https://example.com/electronics.png' },
-    { id: '2', name: 'Books', image: 'https://example.com/books.png' },
-    { id: '3', name: 'Clothing', image: 'https://example.com/clothing.png' },
-  ];
 
   const renderItem = ({ item }) => (
-    <View style={styles.categoryItem}>
-      <Image source={{ uri: item.image }} style={styles.categoryImage} />
+  
+  <View style={styles.categoryItem}>
+      <Image source={item.image} style={styles.categoryImage}  />
       <Text style={styles.categoryName}>{item.name}</Text>
+      <Text style={styles.categoryDescription}>{item.description}</Text>
+
     </View>
   );
 
   return (
+    <>
+    <Text style={{color:'black',fontSize:20,fontWeight:'bold',marginTop:10,marginBottom:10,textAlign:'center'}}> Categories</Text>
     <FlatList
-      data={categories}
+      data={Categories}
       renderItem={renderItem}
       keyExtractor={item => item.id}
-      horizontal // Use horizontal={false} for vertical list
+      horizontal
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={styles.listContainer}
     />
+    </>
   );
 };
 
@@ -43,7 +45,13 @@ const styles = StyleSheet.create({
   categoryName: {
     marginTop: 5,
     fontSize: 16,
+    color: 'black',
   },
+  categoryDescription: {
+    marginTop: 95,
+    fontSize: 14, // Slightly smaller for distinction
+    color: 'grey', // Changed color for visual hierarchy
+  }
 });
 
-export default CategoryList;
+export default CategoryList; 

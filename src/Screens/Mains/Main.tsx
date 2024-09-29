@@ -30,23 +30,25 @@ export default function Main() {
 
   return (
     <View style={styles.container}>
-      {selectedTab == 0 ? (<Home />) : selectedTab == 1 ? (<Search />) : selectedTab == 2 ? (<Shop />) : selectedTab == 3 ? (<Wishlist />) : (<Profile />)}
+      {selectedTab === 0 ? <Home /> : selectedTab === 1 ? <Search /> : selectedTab === 2 ? <Shop /> : selectedTab === 3 ? <Wishlist /> : <Profile />}
 
       <View style={styles.bottomBar}>
         {/* Home */}
         <TouchableOpacity style={styles.iconContainer} onPress={() => handleTabPress(0)}>
           <Animated.Image
             source={require('../../assests/images/home.png')}
-            style={[styles.icon, { tintColor: selectedTab == 0 ? 'blue' : 'gray', transform: [{ scale: selectedTab == 0 ? bounceValue : 1 }] }]}
+            style={[styles.icon, { tintColor: selectedTab === 0 ? '#ffa700' : 'gray', transform: [{ scale: selectedTab === 0 ? bounceValue : 1 }] }]}
           />
+          <Text style={{ color: selectedTab === 0 ? '#ffa700' : 'gray' }}>Home</Text>
         </TouchableOpacity>
 
         {/* Search */}
         <TouchableOpacity style={styles.iconContainer} onPress={() => handleTabPress(1)}>
           <Animated.Image
             source={require('../../assests/images/search.png')}
-            style={[styles.icon, { tintColor: selectedTab == 1 ? 'blue' : 'gray', transform: [{ scale: selectedTab == 1 ? bounceValue : 1 }] }]}
+            style={[styles.icon, { tintColor: selectedTab === 1 ? '#ffa700' : 'gray', transform: [{ scale: selectedTab === 1 ? bounceValue : 1 }] }]}
           />
+          <Text style={{ color: selectedTab === 1 ? '#ffa700' : 'gray' }}>Search</Text>
         </TouchableOpacity>
 
         {/* Center Button (Custom) */}
@@ -54,7 +56,7 @@ export default function Main() {
           <TouchableOpacity style={styles.centerButton} onPress={() => handleTabPress(2)}>
             <Animated.Image
               source={require('../../assests/images/store.png')}
-              style={[styles.centerIcon, { tintColor: selectedTab == 2 ? 'blue' : '#fff', transform: [{ scale: selectedTab == 2 ? bounceValue : 1 }] }]}
+              style={[styles.centerIcon, { tintColor: selectedTab === 2 ? '#ffa700' : '#fff', transform: [{ scale: selectedTab === 2 ? bounceValue : 1 }] }]}
             />
           </TouchableOpacity>
         </View>
@@ -63,16 +65,18 @@ export default function Main() {
         <TouchableOpacity style={styles.iconContainer} onPress={() => handleTabPress(3)}>
           <Animated.Image
             source={require('../../assests/images/wishlist.png')}
-            style={[styles.icon, { tintColor: selectedTab == 3 ? 'blue' : 'gray', transform: [{ scale: selectedTab == 3 ? bounceValue : 1 }] }]}
+            style={[styles.icon, { tintColor: selectedTab === 3 ? '#ffa700' : 'gray', transform: [{ scale: selectedTab === 3 ? bounceValue : 1 }] }]}
           />
+          <Text style={{ color: selectedTab === 3 ? '#ffa700' : 'gray' }}>Wishlist</Text>
         </TouchableOpacity>
 
         {/* Profile */}
         <TouchableOpacity style={styles.iconContainer} onPress={() => handleTabPress(4)}>
           <Animated.Image
             source={require('../../assests/images/user.png')}
-            style={[styles.icon, { tintColor: selectedTab == 4 ? 'blue' : 'gray', transform: [{ scale: selectedTab == 4 ? bounceValue : 1 }] }]}
+            style={[styles.icon, { tintColor: selectedTab === 4 ? '#ffa700' : 'gray', transform: [{ scale: selectedTab === 4 ? bounceValue : 1 }] }]}
           />
+          <Text style={{ color: selectedTab === 4 ? '#ffa700' : 'gray' }}>User</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -86,7 +90,7 @@ const styles = StyleSheet.create({
   bottomBar: {
     width: '100%',
     height: 70,
-    backgroundColor: '#fff',
+    backgroundColor: 'black', // Changed to green
     position: 'absolute',
     bottom: 0,
     flexDirection: 'row',
@@ -99,8 +103,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   icon: {
-    width: 40,
-    height: 40,
+    width: 25,
+    height: 25,
   },
   centerButtonContainer: {
     width: '20%',
@@ -109,8 +113,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   centerButton: {
-    width: 60,
-    height: 60,
+    width: 50,
+    height: 50,
     backgroundColor: 'black',
     justifyContent: 'center',
     alignItems: 'center',
