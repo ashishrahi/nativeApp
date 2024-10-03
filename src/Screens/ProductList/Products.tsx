@@ -1,9 +1,17 @@
 import React from 'react';
 import { View, FlatList, StyleSheet, Dimensions, Text, TouchableOpacity } from 'react-native';
-import { Products } from '../../assests/data'; // Ensure this path is correct
-import ProductCard from '../../assests/UI/dataDisplay/ProductCard'; // Ensure this path is correct
+import { Products } from '../../assests/data'; 
+import ProductCard from '../../assests/UI/dataDisplay/ProductCard'; 
 
 const ProductList = () => {
+
+
+
+    const handleAddToCart = async(product) => {
+        console.log("Added to cart:", product);
+
+    };
+
     const { width } = Dimensions.get('window');
     const numColumns = Math.floor(width / 150); // Adjust 150 to your card width
 
@@ -18,7 +26,7 @@ const ProductList = () => {
             activeOpacity={0.7} // Change opacity when pressed
         >
             <View style={styles.cardContainer}>
-                <ProductCard product={item} />
+                <ProductCard product={item} onAddToCart={handleAddToCart} />
             </View>
         </TouchableOpacity>
     );

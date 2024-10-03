@@ -1,152 +1,164 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, StyleSheet, Text, Image, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
-import { useNavigation } from '@react-navigation/native';
+import CustomTextInput from '../../assests/UI/Input/TextInput'; // Custom input component
+import CustomButton from '../../assests/UI/Input/Button'; // Custom button component
+import adminLogo from '../../assests/images/logo.png'; // Path to your admin logo image
+import { useNavigation } from '@react-navigation/native'; // Import the navigation hook
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
 
-// Import your logo image (make sure the path is correct)
-import logo from '../../assests/images/logo.png'; // Update this path to your logo
+// Validation schema for Sign Up
+const validationSchema = Yup.object().shape({
+  username: Yup.string().min(3, 'Username must be at least 3 characters').required('Username is required*'),
+  email: Yup.string().email('Invalid email').required('Email is required*'),
+  password: Yup.string().min(6, 'Password must be at least 6 characters').required('Password is required*'),
+  repassword: Yup.string()
+    .oneOf([Yup.ref('password'), null], 'Passwords must match')
+    .required('Password confirmation is required'),
+});
 
-const Signup = () => {
-  const navigation = useNavigation();
-  const [isLogin, setIsLogin] = useState(true); // State to toggle between login and signup
+const SignupComponent = () => {
+  const navigation = useNavigation(); // Get the navigation object
+  const [loading, setLoading] = useState(false); // State to track loading
 
-  const loginValidationSchema = Yup.object().shape({
-    email: Yup.string()
-      .email('Invalid email address')
-      .required('Email is required'),
-    password: Yup.string()
-      .min(6, 'Password must be at least 6 characters')
-      .required('Password is required'),
-  });
-
-  const signupValidationSchema = Yup.object().shape({
-    email: Yup.string()
-      .email('Invalid email address')
-      .required('Email is required'),
-    password: Yup.string()
-      .min(6, 'Password must be at least 6 characters')
-      .required('Password is required'),
-    confirmPassword: Yup.string()
-      .oneOf([Yup.ref('password'), null], 'Passwords must match')
-      .required('Confirm Password is required'),
-  });
+  // Function to store user data in AsyncStorage
+  const storeUserData = async (values) => {
+    try {
+      await AsyncStorage.setItem('userData', JSON.stringify(values));
+      console.log('User data stored successfully:', values);
+    } catch (error) {
+      console.error('Error storing user data:', error);
+    }
+  };
 
   return (
-    <View style={styles.container}>
-      {/* Header with logo and title */}
-      <View style={styles.headerContainer}>
-        <Image source={logo} style={styles.logo} resizeMode="contain" />
-        <Text style={styles.title}>{isLogin ? 'Sign In' : 'Sign Up'}</Text>
-      </View>
-
-      {/* Formik for Login and Signup */}
+    <ScrollView contentContainerStyle={styles.container}>
       <Formik
-        initialValues={isLogin ? { email: '', password: '' } : { email: '', password: '', confirmPassword: '' }}
-        validationSchema={isLogin ? loginValidationSchema : signupValidationSchema}
-        onSubmit={values => console.log(values)} // Handle signup/login logic here
+        initialValues={{ email: '', password: '', repassword: '', username: '' }}
+        validationSchema={validationSchema}
+        onSubmit={async (values) => {
+          setLoading(true); // Start loading
+          console.log(values);
+          // Simulate API call
+          setTimeout(async () => {
+            await storeUserData(values); // Store user data in AsyncStorage
+            setLoading(false); // Stop loading
+            // Handle navigation after successful signup
+            navigation.navigate('Home'); // Navigate to Home or any other screen
+          }, 2000); // Simulate a 2-second API call
+        }}
       >
         {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
-          <View style={styles.formContainer}>
-            <TextInput
+          <>
+            {/* Admin Logo with Administration Text */}
+            <View style={styles.logoContainer}>
+              <Image source={adminLogo} style={styles.logo} />
+              <Text style={styles.adminText}>Shooopy</Text>
+            </View>
+
+            {/* Username */}
+            <CustomTextInput
+              label="Username"
+              onChangeText={handleChange('username')}
+              onBlur={handleBlur('username')}
+              value={values.username}
               style={styles.input}
-              placeholder="Email"
+            />
+            {errors.username && touched.username && <Text style={styles.error}>{errors.username}</Text>}
+
+            {/* Email */}
+            <CustomTextInput
+              label="Email"
               onChangeText={handleChange('email')}
               onBlur={handleBlur('email')}
               value={values.email}
-              keyboardType="email-address"
-              placeholderTextColor="gray" // Placeholder color
-            />
-            {errors.email && touched.email && (
-              <Text style={styles.errorText}>{errors.email}</Text>
-            )}
-            <TextInput
               style={styles.input}
-              placeholder="Password"
+            />
+            {errors.email && touched.email && <Text style={styles.error}>{errors.email}</Text>}
+
+            {/* Password */}
+            <CustomTextInput
+              label="Password"
+              secureTextEntry={true}  // Show password as dots
               onChangeText={handleChange('password')}
               onBlur={handleBlur('password')}
               value={values.password}
-              secureTextEntry
-              placeholderTextColor="gray" // Placeholder color
+              style={styles.input}
             />
-            {errors.password && touched.password && (
-              <Text style={styles.errorText}>{errors.password}</Text>
-            )}
-            {!isLogin && (
-              <>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Confirm Password"
-                  onChangeText={handleChange('confirmPassword')}
-                  onBlur={handleBlur('confirmPassword')}
-                  value={values.confirmPassword}
-                  secureTextEntry
-                  placeholderTextColor="gray" // Placeholder color
-                />
-                {errors.confirmPassword && touched.confirmPassword && (
-                  <Text style={styles.errorText}>{errors.confirmPassword}</Text>
-                )}
-              </>
-            )}
-            <Button onPress={handleSubmit} title={isLogin ? 'Sign In' : 'Sign Up'} />
+            {errors.password && touched.password && <Text style={styles.error}>{errors.password}</Text>}
+
+            {/* Confirm Password */}
+            <CustomTextInput
+              label="Confirm Password"
+              secureTextEntry={true}  // Show confirm password as dots
+              onChangeText={handleChange('repassword')}
+              onBlur={handleBlur('repassword')}
+              value={values.repassword}
+              style={styles.input}
+            />
+            {errors.repassword && touched.repassword && <Text style={styles.error}>{errors.repassword}</Text>}
+
+            {/* Sign Up Button */}
+            <CustomButton onPress={handleSubmit} label="Sign Up" mode="elevated" />
             
-            {/* Toggle between Sign In and Sign Up */}
-            <TouchableOpacity onPress={() => setIsLogin(!isLogin)} style={styles.toggleButton}>
-              <Text style={styles.toggleText,{textAlign:'center',color:'black'}}>
-                {isLogin ? "Don't have an account? Sign Up" : 'Already have an account? Sign In'}
-              </Text>
+            {/* Circular Progress Indicator */}
+            {loading && (
+              <ActivityIndicator size="large" color="#007BFF" style={styles.loadingIndicator} />
+            )}
+
+            {/* Sign In Link */}
+            <TouchableOpacity onPress={() => navigation.navigate('SignIn')}>
+              <Text style={styles.linkText}>You have an account? Sign In</Text>
             </TouchableOpacity>
-          </View>
+          </>
         )}
       </Formik>
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    padding: 16,
+    backgroundColor: '#fff',
+    flexGrow: 1, // Allow content to grow
     justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
+    rowGap: 12,
   },
-  headerContainer: {
+  logoContainer: {
     alignItems: 'center',
-    marginBottom: 20, // Space between header and form
+    marginBottom: 20,
   },
   logo: {
-    width: 100, // Adjust width as needed
-    height: 100, // Adjust height as needed
+    width: 120,
+    height: 120,
   },
-  title: {
-    fontSize: 24, // Adjust the font size as needed
+  adminText: {
+    marginTop: 8,
+    fontSize: 16,
     fontWeight: 'bold',
-    marginTop: 10, // Space between logo and title
-    color: 'black',
-  },
-  formContainer: {
-    width: '100%',
+    color: '#000', // Adjust color as needed
   },
   input: {
-    width: '100%',
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
     marginBottom: 12,
-    paddingHorizontal: 10,
-    color: 'black', // Change text color to black
+    borderBottomWidth: 1,
+    borderColor: '#ccc',
+    paddingVertical: 8,
   },
-  errorText: {
-    fontSize: 12,
+  error: {
     color: 'red',
+    marginBottom: 8,
   },
-  toggleButton: {
-    marginTop: 20,
+  linkText: {
+    color: '#007BFF',
+    textAlign: 'center',
+    marginTop: 12,
   },
-  toggleText: {
-    color: 'black',
-    textDecorationLine: 'underline',
+  loadingIndicator: {
+    marginTop: 16,
+    alignSelf: 'center', // Center the loading indicator
   },
 });
 
-export default Signup;
+export default SignupComponent;

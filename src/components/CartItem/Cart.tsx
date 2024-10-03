@@ -1,14 +1,14 @@
 import { View, Text } from 'react-native'
 import React from 'react'
+import CartItem from './CartItem'
 import Appbar from '../../components/Appbar/Appbar'
 
-const Wishlist = () => {
-  return (
+export default function Cart() {
+
+    return (
     <>
-    <Appbar title="Wishlist"/>
-      <Text>Wishlist</Text>
+    <Appbar title="Cart List"/>
+    <CartItem/>
     </>
   )
 }
-
-export default Wishlist

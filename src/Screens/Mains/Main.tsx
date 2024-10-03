@@ -2,9 +2,9 @@ import { View, Text, TouchableOpacity, Image, StyleSheet, Animated } from 'react
 import React, { useState, useRef } from 'react';
 import Home from '../Home/Home';
 import Search from '../Search/Search';
-import Shop from '../Shop/Shop';
 import Profile from '../Profile/Profile';
-import Wishlist from '../Wishlist.tsx/Wishlist';
+import Wishlist from '../Wishlist/Wishlist';
+import Cart from '../../components/CartItem/Cart';
 
 export default function Main() {
   const [selectedTab, setSelectedTab] = useState(0);
@@ -30,7 +30,7 @@ export default function Main() {
 
   return (
     <View style={styles.container}>
-      {selectedTab === 0 ? <Home /> : selectedTab === 1 ? <Search /> : selectedTab === 2 ? <Shop /> : selectedTab === 3 ? <Wishlist /> : <Profile />}
+      {selectedTab === 0 ? <Home /> : selectedTab === 1 ? <Search /> : selectedTab === 2 ? <Cart /> : selectedTab === 3 ? <Wishlist /> : <Profile />}
 
       <View style={styles.bottomBar}>
         {/* Home */}
@@ -55,9 +55,11 @@ export default function Main() {
         <View style={styles.centerButtonContainer}>
           <TouchableOpacity style={styles.centerButton} onPress={() => handleTabPress(2)}>
             <Animated.Image
-              source={require('../../assests/images/store.png')}
+              source={require('../../assests/images/bag.png')}
               style={[styles.centerIcon, { tintColor: selectedTab === 2 ? '#ffa700' : '#fff', transform: [{ scale: selectedTab === 2 ? bounceValue : 1 }] }]}
             />
+          <Text style={{ color: selectedTab === 1 ? '#ffa700' : 'gray' }}>Checkout</Text>
+
           </TouchableOpacity>
         </View>
 

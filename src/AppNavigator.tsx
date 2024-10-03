@@ -6,6 +6,7 @@ import SignIn from './Screens/Users/SignIn'
 import SignupForm from './Screens/Users/Signup'
 import Address from './Screens/Address/Address'
 import Main from './Screens/Mains/Main'
+import ProductDetails from './Screens/ProductDetail/ProductDetail'
 import NewAddress from './Screens/Address/NewAddress'
 import Contact from './Screens/Contact/Contact'
 import Orders from './Screens/Orders/Orders'
@@ -23,23 +24,29 @@ const AppNavigator = () => {
                     component={Splash}
                 />
                {/* SignIn */}
-                {/* <Stack.Screen
+                <Stack.Screen
                     options={{ headerShown: false }}
                     name="SignIn"
                     component={SignIn}
-                /> */}
+                />
                 {/* SignUp */}
-                 {/* <Stack.Screen
+                 <Stack.Screen
                     options={{ headerShown: false }}
                     name="Signup"
                     component={SignupForm}
-                /> */}
+                />
                  
                   {/* Home */}
                   <Stack.Screen
                     options={{ headerShown: false }}
                     name="Main"
                     component={Main}
+                /> 
+                   {/* Home */}
+                   <Stack.Screen
+                    options={{ headerShown: false }}
+                    name="Product Details"
+                    component={ProductDetails}
                 /> 
                 
                 {/* Address */}

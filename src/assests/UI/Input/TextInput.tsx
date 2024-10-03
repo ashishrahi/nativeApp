@@ -1,32 +1,42 @@
-// CustomTextInput.js
-import React from 'react';
+import * as React from 'react';
+import { TextInput } from 'react-native-paper';
 import { StyleSheet } from 'react-native';
-import { TextInput as PaperTextInput } from 'react-native-paper';
 
-const CustomTextInput = ({
-  label,
-  value,
-  onChangeText,
-  error,
-  ...props
-}) => {
+interface MyTextInputProps {
+  label: string;
+  placeholder: string;
+  maxLength?: number;
+}
+
+const MyTextInput: React.FC<MyTextInputProps> = ({ label, placeholder, maxLength = 20 }) => {
+
   return (
-    <PaperTextInput
+    <TextInput
+      mode="outlined"
       label={label}
-      value={value}
-      onChangeText={onChangeText}
-      mode="outlined" // or "flat"
-      error={!!error}
+      placeholder={placeholder}
+      right={<TextInput.Affix text={`/${maxLength}`} />}
+      maxLength={maxLength}
       style={styles.input}
-      {...props}
+       placeholderTextColor="#888"
+      theme={{
+        colors: {
+          primary: 'black', // Border color
+          placeholder: 'black', // Placeholder color
+          text: 'black', // Input text color
+          background: 'white', // Background color
+        },
+      }}
     />
   );
 };
 
 const styles = StyleSheet.create({
   input: {
-    marginBottom: 16,
+    backgroundColor: '#fff', 
+    color:'black',
+    // Adding color here is not necessary since the theme handles it
   },
 });
 
-export default CustomTextInput;
+export default MyTextInput;

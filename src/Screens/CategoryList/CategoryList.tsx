@@ -44,6 +44,7 @@ const styles = StyleSheet.create({
   },
   categoryName: {
     marginTop: 5,
+    marginBottom:36,
     fontSize: 16,
     color: 'black',
   },

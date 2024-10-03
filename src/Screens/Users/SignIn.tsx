@@ -1,138 +1,127 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, Dimensions } from 'react-native';
+import { View, StyleSheet, Text, Image, TouchableOpacity, ScrollView } from 'react-native';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
-import { useNavigation } from '@react-navigation/native';
-import { TextInput, Button, TouchableRipple } from 'react-native-paper'; // Importing React Native Paper components
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
+import CustomTextInput from '../../assests/UI/Input/TextInput'; // Assuming you have a custom input component
+import CustomButton from '../../assests/UI/Input/Button'; // Assuming this is your button component
+import adminLogo from '../../assests/images/logo.png'; // Add path to your admin logo image
+import { useNavigation } from '@react-navigation/native'; // Import the navigation hook
 
-import logo from '../../assests/images/logo.png'; // Replace with your actual logo path
+// Validation schema for Sign In
+const validationSchema = Yup.object().shape({
+  email: Yup.string().email('Invalid email').required('Email is required'),
+  password: Yup.string().min(6, 'Password must be at least 6 characters').required('Password is required'),
+});
 
-const { width, height } = Dimensions.get('window');
+const SignInComponent = () => {
+  const navigation = useNavigation(); // Get the navigation object
 
-const LoginForm = () => {
-  const navigation = useNavigation();
+  const handleSignIn = async (values) => {
+    console.log(values);
+    // Simulate an API call to authenticate the user
+    try {
+      // Example: Save user data or token after successful authentication
+      const userData = { email: values.email }; // Replace with actual user data from your API
+      await AsyncStorage.setItem('userData', JSON.stringify(userData));
 
-  const loginValidationSchema = Yup.object().shape({
-    email: Yup.string()
-      .email('Invalid email address')
-      .required('Email is required'),
-    password: Yup.string()
-      .min(6, 'Password must be at least 6 characters')
-      .required('Password is required'),
-  });
+      // Optionally navigate to a different screen after successful login
+      navigation.navigate('Home'); // Change to your home screen
+    } catch (error) {
+      console.error('Failed to save user data:', error);
+    }
+  };
 
   return (
-    <View style={styles.container}>
-      {/* Header with logo and title */}
-      <View style={styles.headerContainer}>
-        <Image source={logo} style={styles.logo} resizeMode="contain" />
-        <Text style={styles.title}>Sign In</Text>
-      </View>
-
+    <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
       <Formik
         initialValues={{ email: '', password: '' }}
-        validationSchema={loginValidationSchema}
-        onSubmit={values => console.log(values)}
+        validationSchema={validationSchema}
+        onSubmit={handleSignIn} // Use the handleSignIn function
       >
         {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
           <>
-            <TextInput
+            {/* Admin Logo */}
+            <Image source={adminLogo} style={styles.logo} />
+
+            <CustomTextInput
               label="Email"
-              mode="outlined"
-              style={styles.input}
               onChangeText={handleChange('email')}
               onBlur={handleBlur('email')}
               value={values.email}
-              keyboardType="email-address"
-              error={errors.email && touched.email}
-            />
-            {errors.email && touched.email && (
-              <Text style={styles.errorText}>{errors.email}</Text>
-            )}
-
-            <TextInput
-              label="Password"
-              mode="outlined"
               style={styles.input}
+            />
+            {errors.email && touched.email && <Text style={styles.error}>{errors.email}</Text>}
+
+            <CustomTextInput
+              label="Password"
+              secureTextEntry={true}  // Show password as dots
               onChangeText={handleChange('password')}
               onBlur={handleBlur('password')}
               value={values.password}
-              secureTextEntry
-              error={errors.password && touched.password}
+              style={styles.input}
             />
-            {errors.password && touched.password && (
-              <Text style={styles.errorText}>{errors.password}</Text>
-            )}
+            {errors.password && touched.password && <Text style={styles.error}>{errors.password}</Text>}
             
-            {/* Forgot Password link positioned below the Password field */}
-            <TouchableRipple onPress={() => navigation.navigate('ForgotPassword')} style={styles.forgotPasswordButton}>
-              <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-            </TouchableRipple>
+            {/* Forgot Password */}
+            <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
+              <Text style={styles.linkText}>Forgot Password?</Text>
+            </TouchableOpacity>
 
-            <Button mode="contained" onPress={handleSubmit} style={styles.signInButton}>
-              Sign In
-            </Button>
+            <CustomButton onPress={handleSubmit} label="Sign In" mode="elevated" />
 
-            <TouchableRipple onPress={() => navigation.navigate('Signup')} style={styles.signupButton}>
-              <Text style={styles.signupText}>Don't have an account? Sign Up</Text>
-            </TouchableRipple>
+            {/* Sign Up */}
+            <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
+              <Text style={styles.linkTexts}>Don't have an account? Sign Up</Text>
+            </TouchableOpacity>
           </>
         )}
       </Formik>
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    padding: 16,
+    backgroundColor: '#fff',
+    flexGrow: 1,
     justifyContent: 'center',
-    alignItems: 'center',
-    padding: width * 0.05, // Responsive padding
-  },
-  headerContainer: {
-    alignItems: 'center',
-    marginBottom: height * 0.05, // Responsive margin
+    rowGap: 12,
   },
   logo: {
-    width: width * 0.25, // Responsive width
-    height: height * 0.15, // Responsive height
-  },
-  title: {
-    fontSize: width * 0.06, // Responsive font size
-    fontWeight: 'bold',
-    marginTop: height * 0.02, // Responsive margin
-    color:'red',
+    width: 120,
+    height: 120,
+    alignSelf: 'center',
+    marginBottom: 20,
   },
   input: {
-    width: '100%',
-    marginBottom: height * 0.02, // Responsive margin
+    marginBottom: 12,
+    borderBottomWidth: 1,
+    borderColor: '#ccc',
+    paddingVertical: 8,
+    textDecorationColor: 'black',
   },
-  errorText: {
-    fontSize: width * 0.03, // Responsive font size
+  error: {
     color: 'red',
-    alignSelf: 'flex-start', // Align error text to the left
-    marginBottom: height * 0.01, // Responsive margin
+    marginBottom: 8,
   },
-  signupButton: {
-    marginTop: height * 0.02, // Responsive margin
+  linkText: {
+    color: '#007BFF',
+    textAlign: 'right',
+    marginBottom: 12,
   },
-  signupText: {
-    color: 'blue',
-    textDecorationLine: 'underline',
+  linkTexts: {
+    color: '#007BFF',
+    textAlign: 'center',
+    marginTop: 12,
   },
-  forgotPasswordButton: {
-    marginTop: height * 0.01, // Responsive margin
-    alignSelf: 'flex-end', // Align to the right
-  },
-  forgotPasswordText: {
-    color: 'blue',
-    textDecorationLine: 'underline',
-  },
-  signInButton: {
-    marginTop: height * 0.03, // Responsive margin
-    width: '100%',
+  adminText: {
+    marginTop: 8,
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#000', // Adjust color as needed
   },
 });
 
-export default LoginForm;
+export default SignInComponent;
