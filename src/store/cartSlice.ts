@@ -1,70 +1,100 @@
-// src/redux/cartSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AppThunk } from './store'; // assuming you have this setup
 
 interface CartItem {
   id: string;
   name: string;
   price: number;
   quantity: number;
+  description: string;
+  image: string;
 }
 
 interface CartState {
-  items: CartItem[];
+  products: CartItem[];
 }
 
 const initialState: CartState = {
-  items: [],
+  products: [],
 };
 
-//Cart  
+// Helper function to save cart to AsyncStorage
+const saveCartToStorage = async (cart: CartItem[]) => {
+  try {
+    await AsyncStorage.setItem('cart', JSON.stringify(cart));
+  } catch (error) {
+    console.error('Failed to save cart to storage:', error);
+  }
+};
 
+// Helper function to load cart from AsyncStorage
+const loadCartFromStorage = async (): Promise<CartItem[]> => {
+  try {
+    const cartData = await AsyncStorage.getItem('cart');
+    return cartData ? JSON.parse(cartData) : [];
+  } catch (error) {
+    console.error('Failed to load cart from storage:', error);
+    return [];
+  }
+};
+
+// Cart Slice
 const cartSlice = createSlice({
   name: 'cart',
   initialState,
   reducers: {
-
-    // Add Cart Items
-    
     addToCart: (state, action: PayloadAction<CartItem>) => {
-      const itemIndex = state.items.findIndex(item => item.id === action.payload.id);
+      const itemIndex = state.products.findIndex(product => product.id === action.payload.id);
       if (itemIndex >= 0) {
-        state.items[itemIndex].quantity += action.payload.quantity;
+        state.products[itemIndex].quantity += action.payload.quantity;
       } else {
-        state.items.push(action.payload);
+        state.products.push(action.payload);
       }
+      saveCartToStorage(state.products);
     },
-    
-    // Remove Cart Items
-    
+
     removeFromCart: (state, action: PayloadAction<string>) => {
-      state.items = state.items.filter(item => item.id !== action.payload);
+      state.products = state.products.filter(product => product.id !== action.payload);
+      saveCartToStorage(state.products);
     },
-    
-    // Clear Cart Items
-   
+
     clearCart: (state) => {
-      state.items = [];
+      state.products = [];
+      saveCartToStorage(state.products);
     },
-    
-    // Update Cart Items Quantity
-   
+
     incrementQuantity: (state, action: PayloadAction<string>) => {
-      const itemIndex = state.items.findIndex(item => item.id === action.payload);
-      if (itemIndex >= 0) {
-        state.items[itemIndex].quantity += 1;
+      const productIndex = state.products.findIndex(product => product.id === action.payload);
+      if (productIndex >= 0) {
+        state.products[productIndex].quantity += 1;
+        saveCartToStorage(state.products);
       }
     },
-    
-    // Update Cart Items Quantity
-   
+
     decrementQuantity: (state, action: PayloadAction<string>) => {
-      const itemIndex = state.items.findIndex(item => item.id === action.payload);
-      if (itemIndex >= 0 && state.items[itemIndex].quantity > 1) {
-        state.items[itemIndex].quantity -= 1;
+      const productIndex = state.products.findIndex(product => product.id === action.payload);
+      if (productIndex >= 0 && state.products[productIndex].quantity > 1) {
+        state.products[productIndex].quantity -= 1;
+        saveCartToStorage(state.products);
       }
+    },
+
+    setCart: (state, action: PayloadAction<CartItem[]>) => {
+      state.products = action.payload;
     },
   },
 });
 
-export const { addToCart, removeFromCart, clearCart, incrementQuantity, decrementQuantity } = cartSlice.actions;
+// Thunk to load cart from AsyncStorage when app starts
+export const loadCart = (): AppThunk => async (dispatch) => {
+  const cartData = await loadCartFromStorage();
+  dispatch(cartSlice.actions.setCart(cartData));
+};
+
+export const selectCartItemCount = (state: { cart: CartState }) => {
+  return state.cart.products.reduce((total, product) => total + product.quantity, 0);
+};
+
+export const { addToCart, removeFromCart, clearCart, incrementQuantity, decrementQuantity, setCart } = cartSlice.actions;
 export default cartSlice.reducer;

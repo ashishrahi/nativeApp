@@ -2,14 +2,17 @@ import React from 'react';
 import { View, FlatList, StyleSheet, Dimensions, Text, TouchableOpacity } from 'react-native';
 import { Products } from '../../assests/data'; 
 import ProductCard from '../../assests/UI/dataDisplay/ProductCard'; 
+import { addToCart } from '../../store/cartSlice';
+import { useDispatch} from 'react-redux';
 
 const ProductList = () => {
 
+    const dispatch = useDispatch();
 
 
-    const handleAddToCart = async(product) => {
-        console.log("Added to cart:", product);
-
+    const handleAddToCart = async(products) => {
+        console.log("Added to cart:", products);
+dispatch(addToCart(products))
     };
 
     const { width } = Dimensions.get('window');

@@ -44,12 +44,10 @@ const styles = StyleSheet.create({
   },
   categoryName: {
     marginTop: 5,
-    marginBottom:36,
     fontSize: 16,
     color: 'black',
   },
   categoryDescription: {
-    marginTop: 95,
     fontSize: 14, // Slightly smaller for distinction
     color: 'grey', // Changed color for visual hierarchy
   }

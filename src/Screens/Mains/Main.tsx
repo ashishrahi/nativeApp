@@ -4,10 +4,16 @@ import Home from '../Home/Home';
 import Search from '../Search/Search';
 import Profile from '../Profile/Profile';
 import Wishlist from '../Wishlist/Wishlist';
-import Cart from '../../components/CartItem/Cart';
+import Cart from '../../Screens/CartList/CartList';
+import { useSelector } from 'react-redux';
+import { selectCartItemCount } from '../../store/store'; // Assuming this is the correct import
 
 export default function Main() {
   const [selectedTab, setSelectedTab] = useState(0);
+  const selectCartItemCount = (state: { cart: CartState }) => {
+    return state.cart.products.length;
+  };
+  const cartItemCount = useSelector(selectCartItemCount); 
   const bounceValue = useRef(new Animated.Value(1)).current;
 
   const handleTabPress = (tabIndex: number) => {
@@ -33,6 +39,7 @@ export default function Main() {
       {selectedTab === 0 ? <Home /> : selectedTab === 1 ? <Search /> : selectedTab === 2 ? <Cart /> : selectedTab === 3 ? <Wishlist /> : <Profile />}
 
       <View style={styles.bottomBar}>
+      
         {/* Home */}
         <TouchableOpacity style={styles.iconContainer} onPress={() => handleTabPress(0)}>
           <Animated.Image
@@ -58,8 +65,14 @@ export default function Main() {
               source={require('../../assests/images/bag.png')}
               style={[styles.centerIcon, { tintColor: selectedTab === 2 ? '#ffa700' : '#fff', transform: [{ scale: selectedTab === 2 ? bounceValue : 1 }] }]}
             />
-          <Text style={{ color: selectedTab === 1 ? '#ffa700' : 'gray' }}>Checkout</Text>
-
+           
+            {/* Dynamic Badge */}
+            {cartItemCount > 0 && (
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>{cartItemCount}</Text>
+              </View>
+            )}
+            <Text style={{ color: selectedTab === 2 ? '#ffa700' : 'gray' }}>Checkout</Text>
           </TouchableOpacity>
         </View>
 
@@ -92,7 +105,7 @@ const styles = StyleSheet.create({
   bottomBar: {
     width: '100%',
     height: 70,
-    backgroundColor: 'black', // Changed to green
+    backgroundColor: 'black',
     position: 'absolute',
     bottom: 0,
     flexDirection: 'row',
@@ -122,10 +135,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 30,
     position: 'absolute',
-    bottom: 10, // elevates the button slightly above the bottom bar
+    bottom: 10,
   },
   centerIcon: {
     width: 30,
     height: 30,
+  },
+  badge: {
+    position: 'absolute',
+    right: -10,
+    top: -10,
+    backgroundColor: 'red',
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  badgeText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: 'bold',
   },
 });

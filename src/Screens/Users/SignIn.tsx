@@ -7,7 +7,6 @@ import CustomTextInput from '../../assests/UI/Input/TextInput'; // Assuming you 
 import CustomButton from '../../assests/UI/Input/Button'; // Assuming this is your button component
 import adminLogo from '../../assests/images/logo.png'; // Add path to your admin logo image
 import { useNavigation } from '@react-navigation/native'; // Import the navigation hook
-
 // Validation schema for Sign In
 const validationSchema = Yup.object().shape({
   email: Yup.string().email('Invalid email').required('Email is required'),

@@ -62,7 +62,47 @@ export const Products = [
         description: "An intriguing fiction novel.",
         price: "$15",
     },
+    {
+        id: 5,
+        name: "Fiction Novel1",
+        image: BooksImage,
+        description: "Ana intriguing fiction novel.",
+        price: "$115",
+    },
+    {
+        id: 6,
+        name: "Fiiction Novel1",
+        image: BooksImage,
+        description: "Aana intriguing fiction novel.",
+        price: "$151",
+    },
+    // New Product Items
+    {
+        id: 7,
+        name: "Wireless Headphones",
+        image: ElectronicsImage,
+        description: "Noise-cancelling wireless headphones.",
+        price: "$199",
+    },
+    {
+        id: 8,
+        name: "Designer Handbag",
+        image: FashionImage,
+        description: "Trendy designer handbag.",
+        price: "$250",
+    },
+    {
+        id: 9,
+        name: "Blender",
+        image: HomeKitchenImage,
+        description: "High-performance blender for smoothies.",
+        price: "$60",
+    },
+    {
+        id: 10,
+        name: "Science Textbook",
+        image: BooksImage,
+        description: "Comprehensive science textbook for students.",
+        price: "$40",
+    },
 ];
-
-
-
