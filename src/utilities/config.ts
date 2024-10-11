@@ -1,11 +1,7 @@
-// apolloClient.js
-import { ApolloClient, InMemoryCache, HttpLink } from '@apollo/client';
+import axios from 'axios';
 
-const BASE_URL = 'https://api.example.com/graphql'; // Replace with your GraphQL endpoint
-
-const client = new ApolloClient({
-  link: new HttpLink({ uri: BASE_URL }),
-  cache: new InMemoryCache(),
+const api = axios.create({
+  baseURL: `http://localhost:5600`,
 });
 
-export default client;
+export default api;

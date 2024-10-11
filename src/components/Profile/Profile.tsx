@@ -103,6 +103,9 @@ const Profile = () => {
           borderBottomColor: '#8e8e8e',
           justifyContent: 'center',
         }}
+        onPress={() => {
+          navigation.navigate('Orders');
+        }}
       >
         <Text style={{ color: 'black', marginLeft: 10 }}>Orders</Text>
       </TouchableOpacity>

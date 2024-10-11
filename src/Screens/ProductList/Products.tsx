@@ -1,18 +1,16 @@
 import React from 'react';
-import { View, FlatList, StyleSheet, Dimensions, Text, TouchableOpacity } from 'react-native';
+import { View, FlatList, StyleSheet, Dimensions, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { Products } from '../../assests/data'; 
 import ProductCard from '../../assests/UI/dataDisplay/ProductCard'; 
 import { addToCart } from '../../store/cartSlice';
-import { useDispatch} from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 const ProductList = () => {
-
     const dispatch = useDispatch();
-
 
     const handleAddToCart = async(products) => {
         console.log("Added to cart:", products);
-dispatch(addToCart(products))
+        dispatch(addToCart(products));
     };
 
     const { width } = Dimensions.get('window');
@@ -35,7 +33,7 @@ dispatch(addToCart(products))
     );
 
     return (
-        <>
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
             <Text style={styles.title}>Products</Text>
             <FlatList
                 data={Products}
@@ -43,12 +41,17 @@ dispatch(addToCart(products))
                 keyExtractor={item => item.id.toString()}
                 numColumns={numColumns}
                 contentContainerStyle={styles.listContainer}
+                scrollEnabled={false} // Disable FlatList scrolling
             />
-        </>
+        </ScrollView>
     );
 };
+
 // Product Style
 const styles = StyleSheet.create({
+    scrollContainer: {
+        paddingBottom: 20, // Adjust as needed
+    },
     listContainer: {
         padding: 10,
     },
@@ -67,4 +70,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default ProductList;
+export default ProductList; 

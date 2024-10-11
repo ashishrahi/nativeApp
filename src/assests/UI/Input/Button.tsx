@@ -6,6 +6,7 @@ type CustomButtonProps = {
   mode: 'text' | 'outlined' | 'contained';
   onPress: () => void;
   label: string;
+  
 };
 
 const CustomButton: React.FC<CustomButtonProps> = ({ icon, mode, onPress, label }) => {

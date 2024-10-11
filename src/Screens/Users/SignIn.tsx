@@ -2,32 +2,29 @@ import React from 'react';
 import { View, StyleSheet, Text, Image, TouchableOpacity, ScrollView } from 'react-native';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
-import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
-import CustomTextInput from '../../assests/UI/Input/TextInput'; // Assuming you have a custom input component
-import CustomButton from '../../assests/UI/Input/Button'; // Assuming this is your button component
-import adminLogo from '../../assests/images/logo.png'; // Add path to your admin logo image
-import { useNavigation } from '@react-navigation/native'; // Import the navigation hook
-// Validation schema for Sign In
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import auth from '@react-native-firebase/auth';
+import CustomTextInput from '../../assests/UI/Input/TextInput';
+import CustomButton from '../../assests/UI/Input/Button';
+import adminLogo from '../../assests/images/logo.png';
+import { useNavigation } from '@react-navigation/native';
+
 const validationSchema = Yup.object().shape({
   email: Yup.string().email('Invalid email').required('Email is required'),
   password: Yup.string().min(6, 'Password must be at least 6 characters').required('Password is required'),
 });
 
 const SignInComponent = () => {
-  const navigation = useNavigation(); // Get the navigation object
+  const navigation = useNavigation();
 
   const handleSignIn = async (values) => {
-    console.log(values);
-    // Simulate an API call to authenticate the user
     try {
-      // Example: Save user data or token after successful authentication
-      const userData = { email: values.email }; // Replace with actual user data from your API
+      // Implement your sign-in logic here (e.g., Firebase Auth)
+      const userData = { email: values.email };
       await AsyncStorage.setItem('userData', JSON.stringify(userData));
-
-      // Optionally navigate to a different screen after successful login
-      navigation.navigate('Home'); // Change to your home screen
+      navigation.navigate('Home');
     } catch (error) {
-      console.error('Failed to save user data:', error);
+      console.error('Failed to sign in:', error);
     }
   };
 
@@ -36,13 +33,11 @@ const SignInComponent = () => {
       <Formik
         initialValues={{ email: '', password: '' }}
         validationSchema={validationSchema}
-        onSubmit={handleSignIn} // Use the handleSignIn function
+        onSubmit={handleSignIn}
       >
         {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
           <>
-            {/* Admin Logo */}
             <Image source={adminLogo} style={styles.logo} />
-
             <CustomTextInput
               label="Email"
               onChangeText={handleChange('email')}
@@ -51,25 +46,19 @@ const SignInComponent = () => {
               style={styles.input}
             />
             {errors.email && touched.email && <Text style={styles.error}>{errors.email}</Text>}
-
             <CustomTextInput
               label="Password"
-              secureTextEntry={true}  // Show password as dots
+              secureTextEntry={true}
               onChangeText={handleChange('password')}
               onBlur={handleBlur('password')}
               value={values.password}
               style={styles.input}
             />
             {errors.password && touched.password && <Text style={styles.error}>{errors.password}</Text>}
-            
-            {/* Forgot Password */}
             <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
               <Text style={styles.linkText}>Forgot Password?</Text>
             </TouchableOpacity>
-
             <CustomButton onPress={handleSubmit} label="Sign In" mode="elevated" />
-
-            {/* Sign Up */}
             <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
               <Text style={styles.linkTexts}>Don't have an account? Sign Up</Text>
             </TouchableOpacity>
@@ -114,12 +103,6 @@ const styles = StyleSheet.create({
     color: '#007BFF',
     textAlign: 'center',
     marginTop: 12,
-  },
-  adminText: {
-    marginTop: 8,
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#000', // Adjust color as needed
   },
 });
 

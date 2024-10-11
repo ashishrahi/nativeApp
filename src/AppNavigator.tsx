@@ -10,6 +10,7 @@ import ProductDetails from './Screens/ProductDetail/ProductDetail'
 import NewAddress from './Screens/Address/NewAddress'
 import Contact from './Screens/Contact/Contact'
 import Orders from './Screens/Orders/Orders'
+import Checkout from './Screens/Checkout/Checkout'
 
 const Stack = createStackNavigator()
 
@@ -69,6 +70,14 @@ const AppNavigator = () => {
                   name="Contact"
                   component={Contact}
               />
+
+                 {/* Checkout */}
+                <Stack.Screen
+                  options={{ headerShown: false }}
+                  name="Checkout"
+                  component={Checkout}
+                 />
+
               
                {/* Orders */}
               <Stack.Screen

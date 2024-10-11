@@ -3,6 +3,7 @@ import { Appbar } from 'react-native-paper';
 import { Image, View, StyleSheet } from 'react-native';
 
 const MyAppBar = () => {
+  
   const handleBack = () => console.log('Back action pressed');
   const handleSearch = () => console.log('Search action pressed');
   const handleMore = () => console.log('More options pressed');

@@ -1,53 +1,63 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Text, Image, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  Text,
+  Image,
+  TouchableOpacity,
+  ScrollView,
+  TextInput,
+  ActivityIndicator,
+} from 'react-native';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
-import CustomTextInput from '../../assests/UI/Input/TextInput'; // Custom input component
+import adminLogo from '../../assests/images/logo.png';
+import { useNavigation } from '@react-navigation/native';
+import { useDispatch } from 'react-redux';
 import CustomButton from '../../assests/UI/Input/Button'; // Custom button component
-import adminLogo from '../../assests/images/logo.png'; // Path to your admin logo image
-import { useNavigation } from '@react-navigation/native'; // Import the navigation hook
-import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
+import Icon from 'react-native-vector-icons/Ionicons';
+import { registerUser } from '../../store/authSlice';
 
 // Validation schema for Sign Up
 const validationSchema = Yup.object().shape({
-  username: Yup.string().min(3, 'Username must be at least 3 characters').required('Username is required*'),
+  username: Yup.string()
+    .min(3, 'Username must be at least 3 characters')
+    .required('Username is required*'),
   email: Yup.string().email('Invalid email').required('Email is required*'),
-  password: Yup.string().min(6, 'Password must be at least 6 characters').required('Password is required*'),
-  repassword: Yup.string()
-    .oneOf([Yup.ref('password'), null], 'Passwords must match')
-    .required('Password confirmation is required'),
+  password: Yup.string()
+    .min(6, 'Password must be at least 6 characters')
+    .required('Password is required*'),
 });
 
 const SignupComponent = () => {
-  const navigation = useNavigation(); // Get the navigation object
-  const [loading, setLoading] = useState(false); // State to track loading
+  
+  const navigation = useNavigation();
+  const dispatch = useDispatch();
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState(''); // State for error messages
 
-  // Function to store user data in AsyncStorage
-  const storeUserData = async (values) => {
+  const handleSubmit = (values) => {
+    setLoading(true); 
+    setError(''); 
     try {
-      await AsyncStorage.setItem('userData', JSON.stringify(values));
-      console.log('User data stored successfully:', values);
+       dispatch(registerUser(values)); 
+      console.log(values)
+      navigation.navigate('SignIn'); // Navigate to Sign In
     } catch (error) {
-      console.error('Error storing user data:', error);
+      console.error('Registration failed:', error); // Log error
+      setError('Registration failed. Please try again.'); // Set error message
+    } finally {
+      setLoading(false); // Stop loading
     }
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Formik
-        initialValues={{ email: '', password: '', repassword: '', username: '' }}
+        initialValues={{ email: '', password: '', username: '' }}
         validationSchema={validationSchema}
-        onSubmit={async (values) => {
-          setLoading(true); // Start loading
-          console.log(values);
-          // Simulate API call
-          setTimeout(async () => {
-            await storeUserData(values); // Store user data in AsyncStorage
-            setLoading(false); // Stop loading
-            // Handle navigation after successful signup
-            navigation.navigate('Home'); // Navigate to Home or any other screen
-          }, 2000); // Simulate a 2-second API call
-        }}
+        onSubmit={handleSubmit}
       >
         {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
           <>
@@ -58,50 +68,60 @@ const SignupComponent = () => {
             </View>
 
             {/* Username */}
-            <CustomTextInput
-              label="Username"
-              onChangeText={handleChange('username')}
-              onBlur={handleBlur('username')}
-              value={values.username}
-              style={styles.input}
-            />
-            {errors.username && touched.username && <Text style={styles.error}>{errors.username}</Text>}
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Username</Text>
+              <TextInput
+                style={styles.textInput}
+                onChangeText={handleChange('username')}
+                onBlur={handleBlur('username')}
+                value={values.username}
+              />
+              {touched.username && errors.username && (
+                <Text style={styles.error}>{errors.username}</Text>
+              )}
+            </View>
 
             {/* Email */}
-            <CustomTextInput
-              label="Email"
-              onChangeText={handleChange('email')}
-              onBlur={handleBlur('email')}
-              value={values.email}
-              style={styles.input}
-            />
-            {errors.email && touched.email && <Text style={styles.error}>{errors.email}</Text>}
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Email</Text>
+              <TextInput
+                style={styles.textInput}
+                onChangeText={handleChange('email')}
+                onBlur={handleBlur('email')}
+                value={values.email}
+                keyboardType="email-address"
+              />
+              {touched.email && errors.email && (
+                <Text style={styles.error}>{errors.email}</Text>
+              )}
+            </View>
 
             {/* Password */}
-            <CustomTextInput
-              label="Password"
-              secureTextEntry={true}  // Show password as dots
-              onChangeText={handleChange('password')}
-              onBlur={handleBlur('password')}
-              value={values.password}
-              style={styles.input}
-            />
-            {errors.password && touched.password && <Text style={styles.error}>{errors.password}</Text>}
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Password</Text>
+              <View style={styles.passwordContainer}>
+                <TextInput
+                  style={styles.passwordInput}
+                  secureTextEntry={!showPassword}
+                  onChangeText={handleChange('password')}
+                  onBlur={handleBlur('password')}
+                  value={values.password}
+                />
+                <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                  <Icon name={showPassword ? 'eye-off' : 'eye'} size={24} color="#007BFF" />
+                </TouchableOpacity>
+              </View>
+              {touched.password && errors.password && (
+                <Text style={styles.error}>{errors.password}</Text>
+              )}
+            </View>
 
-            {/* Confirm Password */}
-            <CustomTextInput
-              label="Confirm Password"
-              secureTextEntry={true}  // Show confirm password as dots
-              onChangeText={handleChange('repassword')}
-              onBlur={handleBlur('repassword')}
-              value={values.repassword}
-              style={styles.input}
-            />
-            {errors.repassword && touched.repassword && <Text style={styles.error}>{errors.repassword}</Text>}
+            {/* Error Message */}
+            {error ? <Text style={styles.error}>{error}</Text> : null}
 
             {/* Sign Up Button */}
             <CustomButton onPress={handleSubmit} label="Sign Up" mode="elevated" />
-            
+
             {/* Circular Progress Indicator */}
             {loading && (
               <ActivityIndicator size="large" color="#007BFF" style={styles.loadingIndicator} />
@@ -122,9 +142,8 @@ const styles = StyleSheet.create({
   container: {
     padding: 16,
     backgroundColor: '#fff',
-    flexGrow: 1, // Allow content to grow
+    flexGrow: 1,
     justifyContent: 'center',
-    rowGap: 12,
   },
   logoContainer: {
     alignItems: 'center',
@@ -138,17 +157,43 @@ const styles = StyleSheet.create({
     marginTop: 8,
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#000', // Adjust color as needed
+    color: '#000',
   },
-  input: {
+  inputContainer: {
     marginBottom: 12,
-    borderBottomWidth: 1,
+  },
+  label: {
+    fontSize: 14,
+    marginBottom: 4,
+    color: '#000',
+  },
+  textInput: {
+    borderWidth: 1,
     borderColor: '#ccc',
+    borderRadius: 4,
+    padding: 8,
+    fontSize: 16,
+    color: '#000',
+    backgroundColor: '#fff',
+  },
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 4,
+    backgroundColor: '#fff',
+    paddingHorizontal: 8,
+  },
+  passwordInput: {
+    flex: 1,
     paddingVertical: 8,
+    fontSize: 16,
+    color: '#000',
   },
   error: {
     color: 'red',
-    marginBottom: 8,
+    marginTop: 4,
   },
   linkText: {
     color: '#007BFF',
@@ -157,7 +202,7 @@ const styles = StyleSheet.create({
   },
   loadingIndicator: {
     marginTop: 16,
-    alignSelf: 'center', // Center the loading indicator
+    alignSelf: 'center',
   },
 });
 

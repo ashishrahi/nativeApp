@@ -1,0 +1,39 @@
+{
+ "project_info": {
+    "project_number": "498543954674",
+    "project_id": "lyrical-medley-436106-n2",
+    "storage_bucket": "lyrical-medley-436106-n2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:498543954674:android:95623de3d3b9e1edb35e6b",
+        "android_client_info": {
+          "package_name": "com.ecommerce"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "498543954674-ba74jhtuttiiuqq78dj01t411sgqa841.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC_znyEvTCFUhYKVcQcAN0NLtdHSpx-3hI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "498543954674-ba74jhtuttiiuqq78dj01t411sgqa841.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

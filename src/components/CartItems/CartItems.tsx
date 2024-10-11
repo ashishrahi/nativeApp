@@ -1,10 +1,11 @@
 import React, { useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { loadCart, removeFromCart } from '../../store/cartSlice';
-import { Text, List, Button } from 'react-native-paper';
+import { Text, List } from 'react-native-paper';
 import { RootState } from '../../store/store';
-import { ScrollView, View, StyleSheet } from 'react-native';
+import { FlatList, View, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation
+import Button from '../../assests/UI/Input/Button'
 
 const CartComponent = () => {
   const dispatch = useDispatch();
@@ -30,37 +31,43 @@ const CartComponent = () => {
     navigation.navigate('Checkout'); // Navigate to Checkout screen
   };
 
+  const renderProductItem = ({ item }) => (
+    <CartProductItem
+      product={item}
+      onRemove={handleRemoveProduct}
+    />
+  );
+
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollViewContent}>
-        <List.Section>
-          <List.Subheader style={styles.headerText}>Your Cart</List.Subheader>
-          {memoizedCartProducts.length === 0 ? (
-            <Text style={[styles.emptyCartText, { color: 'black' }]}>
-              No products in cart
-            </Text>
-          ) : (
-            memoizedCartProducts.map(product => (
-              <CartProductItem
-                key={product.id}
-                product={product}
-                onRemove={handleRemoveProduct}
-              />
-            ))
-          )}
-        </List.Section>
-      </ScrollView>
+      <List.Section>
+        <List.Subheader style={styles.headerText}>Your Cart</List.Subheader>
+        {memoizedCartProducts.length === 0 ? (
+          <Text style={[styles.emptyCartText, { color: 'black' }]}>
+            No products in cart
+          </Text>
+        ) : (
+          <FlatList
+            data={memoizedCartProducts}
+            renderItem={renderProductItem}
+            keyExtractor={item => item.id}
+            contentContainerStyle={styles.flatListContent}
+          />
+        )}
+      </List.Section>
 
       {/* Render Checkout button only if there are products in the cart */}
       {memoizedCartProducts.length > 0 && (
         <View style={styles.buttonContainer}>
           <Button
+            textColor='white'
             mode="contained"
             onPress={handleCheckout}
             style={styles.checkoutButton}
-          >
-            Checkout
-          </Button>
+            label='Checkout'
+            
+          />
+            
         </View>
       )}
     </View>
@@ -77,13 +84,13 @@ const CartProductItem = ({ product, onRemove }) => (
     right={props => (
       <Button
         {...props}
-        textColor='white'
+        textColor='black'
         style={{ backgroundColor: 'red' }}
         mode="contained"
         onPress={() => onRemove(product.id)}
-      >
-        Remove
-      </Button>
+        label='Remove'
+        color='black'
+      />
     )}
   />
 );
@@ -94,7 +101,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'white', // Set background color for the container
   },
-  scrollViewContent: {
+  flatListContent: {
     paddingBottom: 16, // Add padding for better scrolling experience
   },
   buttonContainer: {
@@ -103,6 +110,7 @@ const styles = StyleSheet.create({
   },
   checkoutButton: {
     marginTop: 16,
+    backgroundColor: 'black',
   },
   headerText: {
     color: 'black', // Set header text color to black
