@@ -3,6 +3,8 @@ import { Appbar } from 'react-native-paper';
 import { View, StyleSheet } from 'react-native';
 
 const ProfileAppBar = ({ title, onEditPress,onhandleBack, onLogoutPress, editIcon, logoutIcon }) => {
+  
+  
   return (
     <View>
       <Appbar.Header style={styles.header}>

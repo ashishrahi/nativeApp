@@ -7,7 +7,7 @@ const Splash = () => {
 
   React.useEffect(() => {
     const timer = setTimeout(() => {
-      navigation.navigate('Main');
+      navigation.navigate('SignIn');
     }, 1000); // Delay for 1000 milliseconds (1 second)
 
     return () => clearTimeout(timer); // Clean up the timeout on component unmount

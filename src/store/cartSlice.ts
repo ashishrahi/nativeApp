@@ -96,5 +96,14 @@ export const selectCartItemCount = (state: { cart: CartState }) => {
   return state.cart.products.reduce((total, product) => total + product.quantity, 0);
 };
 
+// Selector to get the total price of items in the cart
+export const selectTotalCartPrice = (state: RootState) => {
+  return state.cart.products.reduce((total, item) => {
+    const itemPrice = parseFloat(item.price.replace(/[^0-9.-]+/g, '')) || 0; // Remove non-numeric characters and convert to float
+    return total + (itemPrice * (item.quantity || 1)); // Use quantity if available
+  }, 0);
+};
+
+
 export const { addToCart, removeFromCart, clearCart, incrementQuantity, decrementQuantity, setCart } = cartSlice.actions;
 export default cartSlice.reducer;

@@ -1,160 +1,122 @@
-import { View, Text, TouchableOpacity, Image, StyleSheet, Animated } from 'react-native';
-import React, { useState, useRef } from 'react';
-import Home from '../Home/Home';
-import Search from '../Search/Search';
-import Profile from '../Profile/Profile';
-import Wishlist from '../Wishlist/Wishlist';
-import Cart from '../../Screens/CartList/CartList';
+import React, { useState, Suspense, lazy, useMemo } from 'react';
+import { View, StyleSheet, ActivityIndicator } from 'react-native';
+import { BottomNavigation, IconButton, Badge } from 'react-native-paper';
 import { useSelector } from 'react-redux';
-import { selectCartItemCount } from '../../store/store'; // Assuming this is the correct import
+import { selectCartItemCount } from '../../store/cartSlice';
 
-export default function Main() {
-  const [selectedTab, setSelectedTab] = useState(0);
-  const selectCartItemCount = (state: { cart: CartState }) => {
-    return state.cart.products.length;
-  };
-  const cartItemCount = useSelector(selectCartItemCount); 
-  const bounceValue = useRef(new Animated.Value(1)).current;
+// Lazy load components
+const Home = lazy(() => import('../Home/Home'));
+const Search = lazy(() => import('../Search/Search'));
+const Profile = lazy(() => import('../Profile/Profile'));
+const Wishlist = lazy(() => import('../Wishlist/Wishlist'));
+const Cart = lazy(() => import('../../Screens/CartList/CartList'));
 
-  const handleTabPress = (tabIndex: number) => {
-    // Start bounce animation
-    Animated.sequence([
-      Animated.spring(bounceValue, {
-        toValue: 1.2, // scale up
-        friction: 3,
-        useNativeDriver: true,
-      }),
-      Animated.spring(bounceValue, {
-        toValue: 1, // scale back to normal
-        friction: 3,
-        useNativeDriver: true,
-      }),
-    ]).start();
-    
-    setSelectedTab(tabIndex);
-  };
+const Main = () => {
+  const cartItemCount = useSelector(selectCartItemCount);
+  const [index, setIndex] = useState(0);
+
+  // Memoizing the navigation state to avoid unnecessary re-renders
+  const navigationState = useMemo(() => ({
+    index,
+    routes: [
+      { key: 'home', title: 'Home', icon: 'home' },
+      { key: 'search', title: 'Search', icon: 'magnify' },
+      { key: 'cart', title: 'Cart', icon: 'cart' },
+      { key: 'wishlist', title: 'Wishlist', icon: 'heart' },
+      { key: 'profile', title: 'Profile', icon: 'account' },
+    ],
+  }), [index]);
+
+  // Memoizing the renderScene function
+  const renderScene = useMemo(() => BottomNavigation.SceneMap({
+    home: () => (
+      <Suspense fallback={<ActivityIndicator size="large" color="#0000ff" />}>
+        <Home />
+      </Suspense>
+    ),
+    search: () => (
+      <Suspense fallback={<ActivityIndicator size="large" color="#0000ff" />}>
+        <Search />
+      </Suspense>
+    ),
+    cart: () => (
+      <Suspense fallback={<ActivityIndicator size="large" color="#0000ff" />}>
+        <Cart />
+      </Suspense>
+    ),
+    wishlist: () => (
+      <Suspense fallback={<ActivityIndicator size="large" color="#0000ff" />}>
+        <Wishlist />
+      </Suspense>
+    ),
+    profile: () => (
+      <Suspense fallback={<ActivityIndicator size="large" color="#0000ff" />}>
+        <Profile />
+      </Suspense>
+    ),
+  }), []);
 
   return (
     <View style={styles.container}>
-      {selectedTab === 0 ? <Home /> : selectedTab === 1 ? <Search /> : selectedTab === 2 ? <Cart /> : selectedTab === 3 ? <Wishlist /> : <Profile />}
-
-      <View style={styles.bottomBar}>
-      
-        {/* Home */}
-        <TouchableOpacity style={styles.iconContainer} onPress={() => handleTabPress(0)}>
-          <Animated.Image
-            source={require('../../assests/images/home.png')}
-            style={[styles.icon, { tintColor: selectedTab === 0 ? '#ffa700' : 'gray', transform: [{ scale: selectedTab === 0 ? bounceValue : 1 }] }]}
-          />
-          <Text style={{ color: selectedTab === 0 ? '#ffa700' : 'gray' }}>Home</Text>
-        </TouchableOpacity>
-
-        {/* Search */}
-        <TouchableOpacity style={styles.iconContainer} onPress={() => handleTabPress(1)}>
-          <Animated.Image
-            source={require('../../assests/images/search.png')}
-            style={[styles.icon, { tintColor: selectedTab === 1 ? '#ffa700' : 'gray', transform: [{ scale: selectedTab === 1 ? bounceValue : 1 }] }]}
-          />
-          <Text style={{ color: selectedTab === 1 ? '#ffa700' : 'gray' }}>Search</Text>
-        </TouchableOpacity>
-
-        {/* Center Button (Custom) */}
-        <View style={styles.centerButtonContainer}>
-          <TouchableOpacity style={styles.centerButton} onPress={() => handleTabPress(2)}>
-            <Animated.Image
-              source={require('../../assests/images/bag.png')}
-              style={[styles.centerIcon, { tintColor: selectedTab === 2 ? '#ffa700' : '#fff', transform: [{ scale: selectedTab === 2 ? bounceValue : 1 }] }]}
+      <BottomNavigation
+        navigationState={navigationState}
+        onIndexChange={setIndex}
+        renderScene={renderScene}
+        barStyle={styles.barStyle}
+        activeColor="blue"
+        inactiveColor="gray"
+        labeled={true}
+        labelStyle={styles.labelStyle}
+        renderIcon={({ route, color }) => (
+          <View style={styles.iconContainer}>
+            <IconButton
+              icon={route.icon}
+              size={24} // Keep a consistent icon size
+              color={color}
+              style={styles.iconButton} // To ensure proper centering
             />
-           
-            {/* Dynamic Badge */}
-            {cartItemCount > 0 && (
-              <View style={styles.badge}>
-                <Text style={styles.badgeText}>{cartItemCount}</Text>
-              </View>
+            {route.key === 'cart' && cartItemCount > 0 && (
+              <Badge style={styles.badge}>{cartItemCount}</Badge>
             )}
-            <Text style={{ color: selectedTab === 2 ? '#ffa700' : 'gray' }}>Checkout</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Wishlist */}
-        <TouchableOpacity style={styles.iconContainer} onPress={() => handleTabPress(3)}>
-          <Animated.Image
-            source={require('../../assests/images/wishlist.png')}
-            style={[styles.icon, { tintColor: selectedTab === 3 ? '#ffa700' : 'gray', transform: [{ scale: selectedTab === 3 ? bounceValue : 1 }] }]}
-          />
-          <Text style={{ color: selectedTab === 3 ? '#ffa700' : 'gray' }}>Wishlist</Text>
-        </TouchableOpacity>
-
-        {/* Profile */}
-        <TouchableOpacity style={styles.iconContainer} onPress={() => handleTabPress(4)}>
-          <Animated.Image
-            source={require('../../assests/images/user.png')}
-            style={[styles.icon, { tintColor: selectedTab === 4 ? '#ffa700' : 'gray', transform: [{ scale: selectedTab === 4 ? bounceValue : 1 }] }]}
-          />
-          <Text style={{ color: selectedTab === 4 ? '#ffa700' : 'gray' }}>User</Text>
-        </TouchableOpacity>
-      </View>
+          </View>
+        )}
+      />
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  bottomBar: {
-    width: '100%',
-    height: 70,
+  scene: {
+    flex: 1,
+    backgroundColor: 'white',
+  },
+  barStyle: {
     backgroundColor: 'black',
-    position: 'absolute',
-    bottom: 0,
-    flexDirection: 'row',
-    alignItems: 'center',
+    elevation: 8,
+  },
+  labelStyle: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: 'black',
   },
   iconContainer: {
-    width: '20%',
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
+    flex: 1,
+    alignItems: 'center', // Center items horizontally
+    justifyContent: 'center', // Center items vertically
+    position: 'relative',
   },
-  icon: {
-    width: 25,
-    height: 25,
-  },
-  centerButtonContainer: {
-    width: '20%',
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  centerButton: {
-    width: 50,
-    height: 50,
-    backgroundColor: 'black',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 30,
-    position: 'absolute',
-    bottom: 10,
-  },
-  centerIcon: {
-    width: 30,
-    height: 30,
+  iconButton: {
+    padding: 0, // Remove padding to improve alignment
   },
   badge: {
     position: 'absolute',
-    right: -10,
-    top: -10,
-    backgroundColor: 'red',
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  badgeText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: 'bold',
+    top: -8, // Adjust top position of badge
+    right: -8, // Adjust right position of badge
+    backgroundColor: 'red', // Change badge color if needed
   },
 });
+
+export default Main;

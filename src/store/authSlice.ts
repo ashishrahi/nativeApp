@@ -1,8 +1,23 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import api from '../utilities/config';
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import api from '../utilities/config';
 
-const initialState = {
+// Define the types for user and initial state
+interface User {
+  email: string;
+  username: string;
+}
+
+interface AuthState {
+  user: User | null;
+  isAuthenticated: boolean;
+  status: 'idle' | 'loading' | 'succeeded' | 'failed';
+  error: string | null;
+  token: string | null;
+  tokenExpiresAt: string | null;
+}
+
+const initialState: AuthState = {
   user: null,
   isAuthenticated: false,
   status: 'idle',
@@ -11,59 +26,88 @@ const initialState = {
   tokenExpiresAt: null,
 };
 
+// Helper function to check if the token is expired
+const isTokenExpired = (expiresAt: string | null): boolean => {
+  if (!expiresAt) return true;
+  return new Date() > new Date(expiresAt);
+};
+
 // Register user thunk
-export const registerUser = createAsyncThunk(
-  'users/signup',
-  async (values, { rejectWithValue }) => {
-    try {
-      const response = await api.post('/users/signup', values);
-      
-      // Store token and user info in AsyncStorage
-      await AsyncStorage.setItem('token', response.data.token);
-      await AsyncStorage.setItem('user', JSON.stringify(response.data.user));
-      
-      return response.data;
-    } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Registration failed');
-    }
+export const registerUser = createAsyncThunk< 
+  { user: User; token: string; tokenExpiresAt: string },
+  { email: string; username: string; password: string },
+  { rejectValue: string }
+>('users/signup', async (userData, { rejectWithValue }) => {
+  try {
+    const response = await api.post('/users/signup', userData);
+    // Storing token and user data securely
+    await AsyncStorage.setItem('token', response.data.token);
+    await AsyncStorage.setItem('user', JSON.stringify(response.data.user));
+    await AsyncStorage.setItem('tokenExpiresAt', response.data.tokenExpiresAt);
+    return response.data;
+  } catch (error) {
+    return rejectWithValue(error.response?.data?.message || 'Registration failed');
   }
-);
+});
 
 // Login user thunk
-export const loginUser = createAsyncThunk(
-  'auth/loginUser',
-  async (userData, { rejectWithValue }) => {
-    try {
-      const response = await api.post('/users/login', userData);
-      
-      // Store token and user info in AsyncStorage
-      await AsyncStorage.setItem('token', response.data.token);
-      await AsyncStorage.setItem('user', JSON.stringify(response.data.user));
-      
-      return response.data;
-    } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Login failed');
-    }
+export const loginUser = createAsyncThunk<
+  { user: User; token: string; tokenExpiresAt: string },
+  { email: string; password: string },
+  { rejectValue: string }
+>('auth/loginUser', async (userData, { rejectWithValue }) => {
+  try {
+    const response = await api.post('/users/signin', userData);
+    // Storing token and user data securely
+    await AsyncStorage.setItem('token', response.data.token);
+    await AsyncStorage.setItem('user', JSON.stringify(response.data.user));
+    await AsyncStorage.setItem('tokenExpiresAt', response.data.tokenExpiresAt);
+    return response.data;
+  } catch (error) {
+    return rejectWithValue(error.response?.data?.message || 'Login failed');
   }
-);
+});
 
 // Logout user thunk
-export const logout = createAsyncThunk(
+export const logout = createAsyncThunk<string, void, { rejectValue: string }>(
   'auth/logout',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await api.get('/auth/logout');
-      
-      // Clear token and user info from AsyncStorage
       await AsyncStorage.removeItem('token');
       await AsyncStorage.removeItem('user');
-      
-      return response.data;
+      await AsyncStorage.removeItem('tokenExpiresAt');
+      return 'Logged out successfully'; // Optionally return a message
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Logout failed');
     }
   }
 );
+
+// Load token on app launch
+export const loadToken = createAsyncThunk<string | null>(
+  'auth/loadToken',
+  async () => {
+    const token = await AsyncStorage.getItem('token');
+    return token; // Return token if it exists
+  }
+);
+
+// Refresh token if necessary
+export const refreshToken = createAsyncThunk<
+  { token: string; tokenExpiresAt: string },
+  void,
+  { rejectValue: string }
+>('auth/refreshToken', async (_, { rejectWithValue }) => {
+  try {
+    const token = await AsyncStorage.getItem('token');
+    const response = await api.post('/users/refresh-token', { token });
+    await AsyncStorage.setItem('token', response.data.token);
+    await AsyncStorage.setItem('tokenExpiresAt', response.data.tokenExpiresAt);
+    return response.data;
+  } catch (error) {
+    return rejectWithValue(error.response?.data?.message || 'Token refresh failed');
+  }
+});
 
 // Define the slice
 const authSlice = createSlice({
@@ -83,39 +127,34 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Register User Async Flow
       .addCase(registerUser.pending, (state) => {
         state.status = 'loading';
       })
-      .addCase(registerUser.fulfilled, (state, action) => {
+      .addCase(registerUser.fulfilled, (state, action: PayloadAction<{ user: User; token: string; tokenExpiresAt: string }>) => {
         state.status = 'succeeded';
         state.user = action.payload.user;
         state.isAuthenticated = true;
         state.token = action.payload.token;
         state.tokenExpiresAt = action.payload.tokenExpiresAt;
       })
-      .addCase(registerUser.rejected, (state, action) => {
+      .addCase(registerUser.rejected, (state, action: PayloadAction<string | undefined>) => {
         state.status = 'failed';
-        state.error = action.payload;
+        state.error = action.payload || 'Registration failed';
       })
-
-      // Login User Async Flow
       .addCase(loginUser.pending, (state) => {
         state.status = 'loading';
       })
-      .addCase(loginUser.fulfilled, (state, action) => {
+      .addCase(loginUser.fulfilled, (state, action: PayloadAction<{ user: User; token: string; tokenExpiresAt: string }>) => {
         state.status = 'succeeded';
         state.user = action.payload.user;
         state.isAuthenticated = true;
         state.token = action.payload.token;
         state.tokenExpiresAt = action.payload.tokenExpiresAt;
       })
-      .addCase(loginUser.rejected, (state, action) => {
+      .addCase(loginUser.rejected, (state, action: PayloadAction<string | undefined>) => {
         state.status = 'failed';
-        state.error = action.payload;
+        state.error = action.payload || 'Login failed';
       })
-
-      // Logout Async Flow
       .addCase(logout.pending, (state) => {
         state.status = 'loading';
       })
@@ -124,10 +163,29 @@ const authSlice = createSlice({
         state.user = null;
         state.isAuthenticated = false;
         state.token = null;
+        state.tokenExpiresAt = null;
       })
-      .addCase(logout.rejected, (state, action) => {
+      .addCase(logout.rejected, (state, action: PayloadAction<string | undefined>) => {
         state.status = 'failed';
-        state.error = action.payload;
+        state.error = action.payload || 'Logout failed';
+      })
+      .addCase(loadToken.fulfilled, (state, action: PayloadAction<string | null>) => {
+        if (action.payload) {
+          state.isAuthenticated = true;
+          state.token = action.payload;
+          if (state.tokenExpiresAt && isTokenExpired(state.tokenExpiresAt)) {
+            // Token is expired, dispatch refresh token action
+            // Ensure you handle this action in your component or middleware
+          }
+        }
+      })
+      .addCase(refreshToken.fulfilled, (state, action: PayloadAction<{ token: string; tokenExpiresAt: string }>) => {
+        state.token = action.payload.token;
+        state.tokenExpiresAt = action.payload.tokenExpiresAt;
+      })
+      .addCase(refreshToken.rejected, (state, action: PayloadAction<string | undefined>) => {
+        state.status = 'failed';
+        state.error = action.payload || 'Token refresh failed';
       });
   },
 });

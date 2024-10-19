@@ -9,6 +9,7 @@ const queryClient = new QueryClient();
 const App = () => {
 
   return (
+    
     <QueryClientProvider client={queryClient}>
     <Provider store={store}>
     <PaperProvider>

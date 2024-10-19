@@ -6,9 +6,10 @@ import wishlistReducer from './wishlistSlice';
 
 const store = configureStore({
   reducer: {
-    auth: authReducer,
+     auth: authReducer,
     cart: cartReducer,
     wishlist: wishlistReducer,
+    
   },
 });
 

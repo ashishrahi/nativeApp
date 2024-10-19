@@ -8,7 +8,7 @@ interface MyTextInputProps {
   maxLength?: number;
 }
 
-const MyTextInput: React.FC<MyTextInputProps> = ({ label, placeholder, maxLength = 20 }) => {
+const MyTextInput: React.FC<MyTextInputProps> = ({ label, placeholder, maxLength = 40 }) => {
 
   return (
     <TextInput

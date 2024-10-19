@@ -1,122 +1,157 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { loadCart, removeFromCart } from '../../store/cartSlice';
-import { Text, List } from 'react-native-paper';
+import { List, Button, IconButton } from 'react-native-paper'; // Use IconButton for icons
 import { RootState } from '../../store/store';
-import { FlatList, View, StyleSheet } from 'react-native';
-import { useNavigation } from '@react-navigation/native'; // Import useNavigation
-import Button from '../../assests/UI/Input/Button'
+import { FlatList, View, StyleSheet, Text, KeyboardAvoidingView, Platform } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 const CartComponent = () => {
   const dispatch = useDispatch();
-  const navigation = useNavigation(); // Initialize navigation
-
-  // Select cart products from the store
   const cartProducts = useSelector((state: RootState) => state.cart.products);
+  const navigation = useNavigation();
 
-  // Load the cart from AsyncStorage on component mount
   useEffect(() => {
     dispatch(loadCart());
   }, [dispatch]);
 
-  // Memoize cart product list to avoid unnecessary re-renders
-  const memoizedCartProducts = useMemo(() => cartProducts, [cartProducts]);
+  const groupedCartProducts = useMemo(() => {
+    return cartProducts.reduce((acc, product) => {
+      const { category } = product;
+      if (!acc[category]) {
+        acc[category] = [];
+      }
+      acc[category].push(product);
+      return acc;
+    }, {} as Record<string, typeof cartProducts>);
+  }, [cartProducts]);
 
-  const handleRemoveProduct = (id: string) => {
+  const handleRemoveProduct = useCallback((id: string) => {
     dispatch(removeFromCart(id));
-  };
+  }, [dispatch]);
 
-  const handleCheckout = () => {
-    console.log('Proceeding to checkout');
-    navigation.navigate('Checkout'); // Navigate to Checkout screen
-  };
+  const renderProductItem = useCallback(({ item }) => (
+    <CartProductItem product={item} onRemove={handleRemoveProduct} />
+  ), [handleRemoveProduct]);
 
-  const renderProductItem = ({ item }) => (
-    <CartProductItem
-      product={item}
-      onRemove={handleRemoveProduct}
-    />
+  const renderCategoryItem = ({ item }) => (
+    <View>
+      <List.Subheader style={styles.headerText}>{item.category}</List.Subheader>
+      <FlatList
+        data={item.products}
+        renderItem={renderProductItem}
+        keyExtractor={(product) => product.id.toString()}
+        scrollEnabled={false} // Disable scrolling for nested FlatList
+      />
+    </View>
+  );
+
+  const groupedProductsArray = useMemo(() => {
+    return Object.entries(groupedCartProducts).map(([category, products]) => ({ category, products }));
+  }, [groupedCartProducts]);
+
+  const renderFooter = () => (
+    cartProducts.length > 0 && (
+      <View style={styles.checkoutContainer}>
+        <Button
+          mode="contained"
+          textColor='white'
+          onPress={() => navigation.navigate('Checkout')}
+          style={styles.checkoutButton}
+        >
+          Checkout
+        </Button>
+      </View>
+    )
   );
 
   return (
-    <View style={styles.container}>
-      <List.Section>
-        <List.Subheader style={styles.headerText}>Your Cart</List.Subheader>
-        {memoizedCartProducts.length === 0 ? (
-          <Text style={[styles.emptyCartText, { color: 'black' }]}>
-            No products in cart
-          </Text>
-        ) : (
-          <FlatList
-            data={memoizedCartProducts}
-            renderItem={renderProductItem}
-            keyExtractor={item => item.id}
-            contentContainerStyle={styles.flatListContent}
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={100} // Adjust based on your layout
+    >
+      <List.Subheader style={styles.headerText}>Your Cart</List.Subheader>
+      <FlatList
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: 80 }} // Padding for the button space
+        data={groupedProductsArray}
+        renderItem={renderCategoryItem}
+        keyExtractor={(item) => item.category}
+        ListEmptyComponent={
+          <List.Item
+            title="No products in cart"
+            titleStyle={styles.emptyCartText}
           />
-        )}
-      </List.Section>
-
-      {/* Render Checkout button only if there are products in the cart */}
-      {memoizedCartProducts.length > 0 && (
-        <View style={styles.buttonContainer}>
-          <Button
-            textColor='white'
-            mode="contained"
-            onPress={handleCheckout}
-            style={styles.checkoutButton}
-            label='Checkout'
-            
-          />
-            
-        </View>
-      )}
-    </View>
+        }
+        ListFooterComponent={renderFooter} // Adding the footer component for checkout button
+      />
+    </KeyboardAvoidingView>
   );
 };
 
-// Separated component for individual cart product item
-const CartProductItem = ({ product, onRemove }) => (
-  <List.Item
-    title={product.name}
-    titleStyle={{ color: 'black' }} // Set title color to black
-    description={`Price: ${product.price} (Quantity: ${product.quantity})`}
-    descriptionStyle={{ color: 'black' }} // Set description color to black
-    right={props => (
-      <Button
-        {...props}
-        textColor='black'
-        style={{ backgroundColor: 'red' }}
-        mode="contained"
-        onPress={() => onRemove(product.id)}
-        label='Remove'
-        color='black'
-      />
-    )}
-  />
-);
+const CartProductItem = React.memo(({ product, onRemove }) => (
+  <View style={styles.productContainer}>
+    <View style={styles.productDetails}>
+      <Text style={styles.productName}>{product.name}</Text>
+      <Text style={styles.productPrice}>Price: ${product.price}</Text>
+      <Text style={styles.productQuantity}>Quantity: {product.quantity}</Text>
+    </View>
+    <IconButton
+      icon="delete" // Use the delete icon from Material Community Icons
+      size={24}
+      color="red"
+      onPress={() => onRemove(product.id)}
+      style={styles.removeButton}
+    />
+  </View>
+));
 
 // Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white', // Set background color for the container
-  },
-  flatListContent: {
-    paddingBottom: 16, // Add padding for better scrolling experience
-  },
-  buttonContainer: {
-    padding: 16,
-    backgroundColor: 'white', // Background color for the button area
-  },
-  checkoutButton: {
-    marginTop: 16,
-    backgroundColor: 'black',
+    backgroundColor: 'white',
   },
   headerText: {
-    color: 'black', // Set header text color to black
+    color: 'black',
   },
   emptyCartText: {
     padding: 16,
+    color: 'black',
+  },
+  productContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+  },
+  productDetails: {
+    flex: 1,
+  },
+  productName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: 'black',
+  },
+  productPrice: {
+    fontSize: 14,
+    color: 'green',
+  },
+  productQuantity: {
+    fontSize: 14,
+    color: 'gray',
+  },
+  removeButton: {
+    marginLeft: 16,
+  },
+  checkoutContainer: {
+    padding: 16,
+    marginBottom: 20, // Extra space at the bottom
+  },
+  checkoutButton: {
+    backgroundColor: 'black', // Change this color to fit your theme
   },
 });
 
